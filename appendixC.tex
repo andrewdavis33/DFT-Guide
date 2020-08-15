@@ -1,0 +1,35 @@
+\section*{Appendix C: Inverse DFT Stuff}
+
+In this appendix, we will show that the IDFT can be used to recover the original signal $x[n]$ from the
+frequency domain.  Recall Equations \ref{eq:dft} and \ref{eq:idft} for the DFT and IDFT, respectively.  Let's
+start the equation for the IDFT shown below:
+
+$$ x[n] = \frac{1}{N}\sum_{k = 0}^{N - 1} X_k e^{i\frac{2\pi}{N}kn}$$
+
+We want to show that the right side is also $x[n]$ if $X_k$ was calculated using the DFT on $x[n]$.  Here,
+we can substitute in the DFT equation for $X_k$ on the sequence $x[n]$.  For clarity, we will use a different
+index variable $m$ for the DFT equation to distinguish it from the IDFT index variable $n$.
+
+$$ x[n] = \frac{1}{N}\sum_{k = 0}^{N - 1} \bigg(\sum_{m = 0}^{N - 1}x[m] \cdot e^{-i\frac{2\pi}{N}km} \bigg) e^{i\frac{2\pi}{N}kn}$$
+
+Here we will do some clever rearranging.
+
+$$x[n] = \frac{1}{N}\sum_{k = 0}^{N - 1} \sum_{m = 0}^{N - 1}x[m] \cdot e^{i\frac{2\pi}{N}k(n - m)} $$
+
+$$x[n] = \frac{1}{N}\sum_{m = 0}^{N - 1} \sum_{k = 0}^{N - 1}x[m] \cdot e^{i\frac{2\pi}{N}k(n - m)} $$
+
+Note that the switching of summations is a clever trick that occurs all the time in DFT proofs.
+
+$$x[n] = \sum_{m = 0}^{N - 1} \frac{1}{N}\sum_{k = 0}^{N - 1}x[m] \cdot e^{i\frac{2\pi}{N}k(n - m)} $$
+
+$$x[n] = \sum_{m = 0}^{N - 1} x[m] \bigg(\frac{1}{N}\sum_{k = 0}^{N - 1} e^{i\frac{2\pi}{N}k(n - m)} \bigg)$$
+
+Let us now analyze the portion in parentheses.  If $n \neq m$, then $\frac{1}{N}\sum_{k = 0}^{N - 1}
+ e^{i\frac{2\pi}{N}k(n - m)} = \frac{1 - e^{2\pi i (n -m)}}{N(1 - e^{2\pi i (n -m)/N})} = 0$.  The trick here is
+ solving the summation using the formula for a finite geometric sum.  We can reason that the number is always
+ zero because $n - m$ is always an integer and therefore the complex exponential has a phase that is always
+ a multiple of $2\pi$.  If $n = m$, then $\frac{1}{N}\sum_{k = 0}^{N - 1} e^{i\frac{2\pi}{N}k(n - m)} = \frac{1}{N}\sum_{k = 0}^{N - 1}1 = \frac{N}{N} = 1$.  
+ 
+ If we analyze the outer summation, then we will see that each term in the summation will be 0 except when
+ $n = m$.  That term has a value of $x[m]$ or $x[n]$.  Therefore, we have showed that the right side does
+ indeed reduce to $x[n]$.  

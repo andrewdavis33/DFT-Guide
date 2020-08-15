@@ -1,0 +1,38 @@
+\documentclass{article}
+\usepackage[a4paper,margin=1in,footskip=0.25in]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{indentfirst}
+\graphicspath{ {./images/} }
+
+% Commands
+\newcommand{\RE}{\mathrm{Re}}
+\newcommand{\IM}{\mathrm{Im}}
+
+\title{An Intuitive Guide to the Discrete Fourier Transform for Music}
+\author{Andrew Davis}
+
+\begin{document}
+	\maketitle
+	
+	The Discrete Fourier Transform is an integral part of digital signal applications for music.  Understanding the
+	inner workings of the Discrete Fourier Transform  will lead to a more complete understanding of filter
+	design, spectral processing, pitch shifting, time stretching, and a host of other digital audio effects.  The 
+	purpose of this document is to approach the Discrete Fourier Transform from an intuitive perspective and to
+	consider it solely in the context of music and audio.  One should understand, however, that the Discrete 
+	Fourier Transform 
+	has applications in many domains and is one of the great tools we have in solving complex scientific and 
+	mathematical problems.  
+	
+	\input{intro.tex}
+	\input{orthogonality.tex}
+	\input{dft.tex}
+	\input{periodicity.tex}
+	\input{practical.tex}
+	\input{inverse.tex}
+	\input{outro.tex}
+	\newpage
+	%\input{appendixA.tex} % math review
+	%\input{appendixB.tex} % proof of orthogonality
+	\input{appendixC.tex} % proof of inverse transform
+\end{document}

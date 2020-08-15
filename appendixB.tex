@@ -1,0 +1,214 @@
+
+	\section*{Appendix B - Proof of Orthogonality of Sinusoids}
+
+	Here we prove the orthogonality of sinusoids both in discrete and continuous time.  We will start with continuous time since that is simpler to prove.  
+	
+	\subsection*{Orthogonality of Continuous Sinusoids}
+	Let's first start with the claim that two sine waves that are periodic over the interval from 
+	$[0, L]$ are orthogonal if their frequencies are different.  Let's call those two sine waves
+	$\sin(\omega_1 t)$ and $ \sin(\omega_2 t )$.  $\omega$ is angular frequency and can
+	be easily converted to frequency using the equation $\omega = 2\pi f$.  We use $\omega$ here because it makes the
+	math a little cleaner and more concise.  Recall that orthogonality is the sum of pointwise products.  We
+	can use an integral to express the summation.  An integral is simply the sum of some function over every point 
+	between some lower bound and some upper bound.  Here we want that the function to be the product of our two
+	functions.  Therefore, we can express the orthogonality of these two arbitrary sinusoids as such:
+	
+	\begin{equation}
+		\label{eq:ip}
+		\int_{0}^{L}\sin(\omega_1 t)\sin(\omega_2 t)dt
+	\end{equation}
+	
+	If you work through the calculus, you will find the following solution to the integral:
+	
+	\begin{equation}
+		\frac{1}{2}\left(\frac{\sin((\omega_1 - \omega_2)L)}{\omega_1 - \omega_2} - \frac{\sin((\omega_1 + \omega_2)L)}{\omega_1 + \omega_2}\right)
+		\label{eq:orth}
+	\end{equation}
+	
+	To prove orthogonality, we need to go back to our original assumption about periodicity.  We assumed that 
+	both sinusoids were periodic along the interval 0 to $L$.  How can we express that mathematically?  Any periodic
+	sinusoid along $L$ must complete an integer number of cycles.  Let's call that integer number of cycles $n$.  
+	We can now express the frequency of such a sinusoid as $n/L$.  This should make intuitive sense.  For
+	example, a 50Hz sine wave completes 50 periods of a sine wave in one second, equivalent to $n = 50$ and $L = 1$.
+	So we can always think of the frequency of a sinusoid as some number of cycles divided by some unit of time.  
+	Finally, if $f = n/L$ and $\omega = 2\pi f$, we can combine those two equations to say 
+	
+	\begin{equation}
+		\label{eq:period}
+		\omega = 2\pi n/L
+	\end{equation}
+	
+	Now consider the two sine expressions in equation (\ref{eq:orth}): $\sin((\omega_1 - \omega_2)L)$ and 
+	$\sin((\omega_1 + \omega_2)L)$.  Let's now replace $\omega_1$ and $\omega_2$ with our result from equation
+	(\ref{eq:period}).  We can see that $\sin((\omega_1 - \omega_2)L) = \sin(2\pi(n_1 - n_2))$ and 
+	$\sin((\omega_1 + \omega_2)L) = \sin(2\pi(n_1 + n_2))$.  Here is where our assumption pays off.  Remember
+	that $n_1$ and $n_2$ represent the number of cycles each of the two arbitrary sinusoids completes in time $L$.
+	Furthermore, recall that $n_1$ and $n_2$ are whole numbers because in order for the sinusoids to be periodic, 
+	they must have completed a whole number of cycles (i.e., no partial cycles).  Therefore, $n_1 + n_2$ and $n_1 - n_2$ 
+	must also be whole numbers because adding or subtracting whole numbers from each other always yields whole
+	numbers.  And finally, since $\sin$ is always zero at multiples of $2\pi$, we can see that $\sin(2\pi(n_1 + n_2))$
+	and $\sin(2\pi(n_1 - n_2))$ are always zero.  Thus equation (\ref{eq:orth}) is always zero when $\omega_1 \neq
+	\omega_2$.  This proves orthogonality when two sine waves have different frequencies yet are periodic along the
+	same time span.  
+	
+	One final thing to consider is what happens when the frequencies are the same (i.e., $\omega_1 = \omega_2$).  We
+	actually cannot tell based on equation (\ref{eq:orth}) because that equation is undefined when 
+	$\omega_1 = \omega_2$.  However, we can go back to our original integral from equation (\ref{eq:ip}) and solve
+	knowing that $\omega_1 = \omega_2$.  
+	
+	\begin{equation}
+	\int_{0}^{L}\sin(\omega_1 t)\sin(\omega_2 t)dt = \int_{0}^{L}\sin^2(\omega_1 t)dt = \frac{L}{2} - \frac{\sin(2\omega_1 L)}{4 L}
+	\end{equation}
+	
+	By our similar logic above, we can show that $\sin(2\omega_1 L)$ is always zero leaving our result to be just
+	$L/2$.  It's crucial to note that when $\omega_1 = \omega_2$ that the two sine waves are \textbf{not} orthogonal
+	because their inner product yields a non-zero result.
+	
+	We can follow the same script as above to show similarly that the inner product of a sine wave and a cosine wave
+	or two cosine waves are orthogonal at different frequencies. \footnote{Intererstingly, the inner product of two cosine
+	waves of the same frequency will yield a non-zero result just like the inner product of two sine waves.  However, the 
+	inner product of a cosine wave and a sine wave is always zero even if the frequencies are the same.  Thus, periodic 
+	sine and cosine waves are always orthogonal.  It turns out that any two periodic sinusoids are orthogonal if separated
+	by a phase of $\pi/2$.}  Again,
+	we must make the same assumption that the waves are periodic along some time interval which we call $L$.  Notice
+	that this is essential for the proof to work because we had to be able to state that $n_1$ and $n_2$ were integers.
+	If we could not assert that fact, we could not say that $\sin(2\pi(n_1 + n_2))$
+	and $\sin(2\pi(n_1 - n_2))$ are always zero.
+	
+	Before we move to analyzing discrete sinusoids, it should be noted that sinusoids of different frequencies are 
+	orthogonal regardless of their phase or amplitude.  To show that we need to say that the following always yields
+	zero when $\omega_1 \neq \omega_2$
+	
+	\begin{equation}
+	\label{eq:generalorth}
+	\int_{0}^{L}A_1\sin(\omega_1 t + \phi_1)A_2\sin(\omega_2 t + \phi_2)dt
+	\end{equation}
+	
+	It is actually quite simple to show this using what we have established so far using trigonometric identities.  Here
+	we will need the identity that $\sin(u + v) = \sin(u)\cos(v) + \cos(u)\cos(v)$.  If we apply the identity to each 
+	sine wave in equation (\ref{eq:generalorth}), we get the following:
+	
+	$$ 
+	A_1A_2\int_{0}^{L}\left[\sin(\omega_1 t)\cos(\phi_1) + \cos(\omega_1t)\sin(\phi_1)\right]
+	\left[\sin(\omega_2 t)\cos(\phi_2) + \cos(\omega_2t)\sin(\phi_2)\right]dt
+	$$	
+	
+	After some unexciting multiplication and simplification, we can reduce our expression down to the following sum:
+	
+	\begin{equation}
+	\begin{split}
+		A_1A_2\cos(\phi_1)\cos(\phi_2)\int_{0}^{L}\sin(\omega_1)\sin(\omega_2)dt \; &+ \\
+A_1A_2\cos(\phi_1)\sin(\phi_2)\int_{0}^{L}\sin(\omega_1)\cos(\omega_2)dt \; &+ \\
+A_1A_2\sin(\phi_1)\cos(\phi_2)\int_{0}^{L}\cos(\omega_1)\sin(\omega_2)dt \; &+ \\
+A_1A_2\sin(\phi_1)\sin(\phi_2)\int_{0}^{L}\cos(\omega_1)\cos(\omega_2)dt
+	\end{split}
+	\end{equation}
+
+	We just showed that each one of these integrals is equal to zero when $\omega_1 \neq \omega_2$.  Therefore,
+	two periodic sinusoids are always othrogonal when their frequencies are different regardless of phase or amplitude.
+	
+	\subsection*{Orthogonality for Sampled Sinusoids}
+	We have exhaustively shown the relationship between periodicity, frequency and orthogonality for continuous 
+	sinusoids.  But we can't just assume the same relationships are true when we sample sinusoids.  As it turns out,
+	it is indeed true that the same relationships hold but let us walk through a bit of the logic to see how we can arrive
+	at a similar conclusion.
+	
+	Sampling of any signal occurs at some regular interval which we will call $T$.  That interval is related to sampling
+	rate (usually denoted $f_s$) by the equation $T = 1/f_s$.  This should make intuitive sense.  As the sampling rate
+	increases, the sampling period $T$ should get smaller and smaller because we need to take more and more samples
+	for the same duration of time.  We can also figure out the time $t$ of sample number $n$ by simply writing 
+	$t = nT$.  Therefore we can get any sample number $n$ from some continuous sinusoid by writing 
+	$A\sin(2\pi f nT + \phi)$ where $t$ is replaced by $nT$.  
+	
+	Orthogonality for sampled sinusoids is like orthogonality for vectors.  We take the product for each sample of
+	the two sinusoids and sum them together.  Mathematically, we can use summation notation to express that.  Let's
+	assume that we have two sine waves that are periodic from time 0 to $L$.  We will take $N$ samples from each of
+	the two sinusoids with sample number $n = 0$ corresponding to time $t = 0$.  Because these two sinusoids are
+	periodic from 0 to $L$, we know that they complete integer number of cycles.  Let's call the total number of cycles
+	they complete $k_1$ and $k_2$.  The frequency then for each of those two sinusoids will be $f_1 = k_1/L$ and
+	$f_2 = k_2/L$.  Here is the expression for our inner product:
+	
+	\begin{equation}
+		\label{eq:orthDiscrete}
+		\sum_{n = 0}^{N-1}\sin(2\pi f_1Tn)\sin(2\pi f_2Tn)
+	\end{equation}
+	
+	Note that our summation runs from 0 to $N-1$ and not $N$ because the 0th sample is part of our total number of
+	samples.  So we are in fact taking a total of $N$ samples.
+	
+	Using the identity $\sin(u + v) = \sin(u)\cos(v) + \cos(u)\cos(v)$, let's divide the summation into two parts:
+	
+	$$\frac{1}{2}\sum_{n = 0}^{N-1}\cos(2\pi (f_1 - f_2)Tn) - \frac{1}{2}\sum_{n = 0}^{N-1}\cos(2\pi (f_1 + f_2)Tn)$$
+	
+	It doesn't seem that will be able to take the discrete sum over a cosine wave but there is acutally an identity that
+	will help us.  The proof for the identity is rather clever and requires complex numbers.  We won't go through it here
+	but the identity is below:
+	
+	\begin{equation}
+		\label{eq:sumCos}
+		\sum_{n=0}^{N - 1}\cos(2\pi fn) = \frac{\cos(\pi f(N - 1))\sin(\pi fN)}{\sin(\pi f)}
+	\end{equation}
+	
+	We can subsitute $(f_1 - f_2)T$ and $(f_1 + f_2)T$ for $f$ from equation (\ref{eq:sumCos}) and to get
+	
+	\begin{equation}
+	\label{eq:noSumDiscrete}
+	\frac{1}{2}\left[ \frac{\cos(\pi (f_1 - f_2)T(N - 1))\sin(\pi (f_1 - f_2)TN)}{\sin(\pi (f_1 - f_2)T)} - \frac{\cos(\pi (f_1 + f_2)T(N - 1))\sin(\pi (f_1 + f_2)TN)}{\sin(\pi (f_1 + f_2)T)}\right]
+	\end{equation}
+	
+	Equation (\ref{eq:noSumDiscrete}) looks like a giant mess but let's take a careful look at $\sin(\pi (f_1 - f_2)TN)$
+	and $\sin(\pi (f_1 + f_2)TN)$.  Both can be simplified.  We know $f_1 = k_1/L$ and $f_2 = k_2/L$.  We also
+	know that the sample rate $f_o$ is equal to the number of samples per second which is equivalent to the total
+	number of samples divided by the total time, or simply $N/L$.  Since $T = 1/f_o$, then we can also say that 
+	$T = L/N$.  Now let's reduce $\sin(\pi (f_1 - f_2)TN)$.
+	
+	$$\sin(\pi (f_1 - f_2)TN) = \sin(\pi (\frac{k_1}{L} - \frac{k_2}{L})\frac{L}{N}N) = \sin(\pi(k_1 - k_2))$$
+	
+	Recall that $k_1$ and $k_2$ are integers.  Just as we saw with continuous sinusoids, we can see that sine will 
+	always be zero because any integer multiple of $\pi$ for sine is always zero.  The same will be true 
+	$\sin(\pi (f_1 + f_2)TN) = \sin(\pi (f_1 + f_2))$.  Therefore, we can conclude that when $f_1 \neq f_2$ our 
+	expression from equation (\ref{eq:sumCos}) will always be zero.  Hence, our two sinusoids are always orthogonal
+	at different frequencies.  We do need to be a little careful here.  We have to be sure that neither of the
+	denominators in equation (\ref{eq:noSumDiscrete}) are zero.  Otherwise, we cannot make the claim of
+	orthogonality because the equation would be undefined.  Fortunately, it should not be an issue in any 
+	practical application.  We need to be concerned when $f_1/f_o - f_2/f_o$ or $f_1/f_o + f_2/f_o$ is an
+	integer.  But that can only happen if the frequencies $f_1$ and $f_2$ are the same or if $f_1$ and $f_2$ 
+	exceed the Nyquist frequency of $f_o/2$.  In the former case, we are not making any claims yet about
+	when the frequencies are the same.  In the latter case, any practical digital signal should have frequencies
+	at or above the Nyquist frequency properly removed by anti-aliasing filtering.  
+	
+	Similar to the continuous case, our equation (\ref{eq:noSumDiscrete}) cannot tell us anything about 
+	when $f_1$ equals
+	$f_2$ because it is undefined at that point.  We need to go back to the original summation from equation 
+	(\ref{eq:orthDiscrete}) and set $f_1 = f_2$.  
+	
+	\begin{equation}
+	\label{eq:sameFreqOrth}
+	\sum_{n = 0}^{N-1}\sin^2(2\pi f_1Tn) =
+	 \frac{1}{2}\sum_{n = 0}^{N-1}1 - \frac{1}{2}\sum_{n = 0}^{N-1}\cos(4\pi f_1Tn) = 
+	 \frac{N}{2} - \frac{1}{2}\sum_{n = 0}^{N-1}\cos(2\pi (\frac{2f_1}{f_o})n)
+	\end{equation}
+	
+	The final summation after simplification from equation (\ref{eq:sameFreqOrth}) can equal at most $N/2$ when
+	cosine is equal to 1.  Only then when $f_1 = f_2$ will we get orthogonality.  At any other point the equation
+	will be non-zero.  If we look at the summation, we will see that cosine equals 1 only when $f_1 = f_2 = 0$ or 
+	when $f_1 = f_2 = f_o/2$ (i.e., the Nyquist frequency).
+	
+	\textbf{Might be nice to add about what happens with cos * cos and sin * cos}
+	
+	\subsection*{Some final thoughts on orthogonality}
+		The great power of orthogonality is to test whether some sine wave of unknown frequency $f_{unknown}$
+	is equal to some frequency $f_{test}$ which we do know.  The section on ... deals with the importance of this 
+	issue.  Orthogonality is our tool to determine if $f_{unkown}$ equals $f_{test}$.  If you take the inner product
+	of both $f_{unknown}$ and $f_{test}$ when they are continuous, a non-zero inner product confirms with
+	certainty that they are two sinusoids of the same frequency.  The same is true in the discrete case as well.
+	However, if you take the inner product and $f_{unknown}$ and $f_{test}$ are orthogonal, you do \textbf{not}
+	know with certainty if the two sinusoids have different frequencies.  The section on ... illustrates that sinusoids
+	separated by a phase of $\pi/2$ are orthogonal even if they have the same frequency.  But note that in the
+	discrete case, you can sometimes achieve orthogonality for the same sinusoids if the frequencies are both zero 
+	or the Nyquist frequency, regardless of phase.  We generally do not care too much about the frequency 
+	components at DC (i.e., when $f_{unknown}$ = 0) because we hopefully have removed most DC bias from
+	our signal.  Likewise, we do not often care about the Nyquist frequency because any good audio signal will
+	have removed frequencies at or above the Nyquist frequency with some sort of anti-aliasing filter.  So
+	in practice, we should not have to worry about such potential issues but its pivotal to understand the math
+	so we can understand exactly what our tools can and cannot do.

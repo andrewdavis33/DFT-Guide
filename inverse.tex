@@ -1,0 +1,38 @@
+\section*{The Inverse Fourier Transform and Spectral Processing}
+
+\subsection*{The Inverse Discrete Fourier Transform}
+
+We have seen how a time domain signal can be projected onto a basis of cosine and sine waves to give the
+frequency domain representation of the sound.  Is it possible to inverse that process?  Can we take a signal
+in the frequency domain and convert it to the time domain?  Fortunately, the answer is yes!  This technique
+is called the Inverse Discrete Fourier Transform (abbreviated as IDFT).  Equation \ref{eq:idft} shows the equation
+for the IDFT.  
+
+\begin{equation}
+	\label{eq:idft}
+	x[n] = \frac{1}{N}\sum_{k = 0}^{N - 1}X_k \cdot e^{i\frac{2\pi}{N}kn}
+\end{equation}
+
+If we examine the IDFT, we can see that we sum the inner product of a complex sinusoids against all of our 
+complex frequency bins $X_k$ to restore the original signal $x[n]$.  The equation for the IDFT is very similar
+to the one for the DFT shown in Equation \ref{eq:dft}.  The only differences are $x[n]$ and $X_k$ are swapped,
+the complex exponential is now positive, and the IDFT has a scaling constant of $\frac{1}{N}$.  The appendix
+shows a proof that the IDFT and DFT are truly inverse operations.  The beauty of the IDFT is that it allows us
+to convert back and forth between the frequency domain and the time domain.  We can convert a signal to the
+frequency domain, perform some spectral manipulations and then convert back to the time domain, creating
+a processed version of the original.  Though less frequently done, we could also build a signal in the frequency
+domain and then use the IDFT to get the time domain representation of the sound.  At the end of the day, all 
+signals need to be converted back to the time domain because all digital-to-analog converters (ADCs) require
+time domain representations of sound.
+
+\subsection*{Spectral Processing}
+
+The DFT and IDFT provide the means to convert an audio signal to the frequency domain for processing and
+then convert back to the time domain.  Spectral manipulation involves changing the complex numbers for
+each $X_k$.  Simple operations include zeroing out bins, scaling the magnitude, changing the phase, rearranging
+bins, etc.  There is a host of different techniques that one could apply.  One seemingly obvious example is
+to create a brickwall filter by zeroing out frequency bins to create a high-pass, low-pass, or bandpass filter.
+Zeroing out bins only creates a brickwall filter if the signal $x[n]$ is periodic along $N$.  Otherwise, nasty artifacts
+will be present in the time domain once the IDFT is complete.  Discussing and analyzing various spectral 
+techniques is beyond the scope of this guide; however, experimenting with simple spectral operations is good 
+practice for developing intuitions.
