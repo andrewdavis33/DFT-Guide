@@ -2,94 +2,115 @@
 
 Before we attempt to transform a time domain signal to the frequency domain, we will need to solve
 a simpler problem.  Let us first try and develop a tool to detect whether a particular frequency or
-sinusoid is present in some sequence of audio samples.  If we can do that, we can test our samples against
-a whole range of frequencies, allowing us to construct a good sketch of the frequency domain of
-the sound.  In essence, this is what the DFT does, and the tool we use to detect frequencies is called
-the ``inner product."
+sinusoid is present in some sequence of audio samples. Figure 
+\ref{fig:test} shows a diagram of such a testing device.  It should be able to take our signal and some frequency
+and output one of two things: yes, the frequency is part of the signal or no, the frequency is not part of the signal.
+If we can do that, we can test our samples against
+a whole range of frequencies, allowing us to construct a good sketch of the frequency domain.   In essence,
+ this is the approach of the DFT, and the testing device we use to detect frequencies is called the ``inner product".
+ 
+ \begin{figure}[h]
+ 	\caption{A sketch of the desired procedure for determining frequency in a signal.}
+ 	\centering
+ 	\includegraphics[scale = 0.4]{test.png}
+ 	\label{fig:test}
+ \end{figure}
 
 \subsection*{Orthogonality and the Inner Product}
 
-Orthogonality is an important mathematical concept that will help us detect the presence of sinusoids
-in sound.  Orthogonality has several definitions depending upon the application.  In geometry, we say two
-lines are orthogonal if they form a 90 degree angle (i.e., perpendicular).  We can also say two vectors are 
-orthogonal if their inner product equals zero.  We can think of a vector as a sequence of numbers.  For example,
-$v = \langle 1, 2, 3 \rangle$ is the vector $v$ with the sequence 1, 2, and 3.  The inner product of two vectors
-is the sum of their pointwise products.  For example, if we have $v = \langle 1, 2, 3 \rangle$ and 
-$u = \langle 1, -1, 0 \rangle$, then the inner product of these two vectors is $(1 * 1) + (2 * -1) + (3 * 0) = -1$.
-In this example, we take the first numbers of each vector and multiply them.  Then we multiply the second
-numbers and then the third numbers and add them all up.  In this example, that sum is -1.  
+The inner product is an operation just like addition or multiplication and has several definitions depending
+upon the application.  Unlike addition and multiplication, the inputs to the inner product are not numbers.
+They are \textbf{sequences} of numbers.
+But what exactly is a sequence of numbers?  A sequence
+is simply an ordered collection.  In digital signal 
+processing, a sequence of numbers is defined with square brackets.  For example, we could have a sequence
+$[9, -2, 7]$.  Because sequences are ordered, the sequence $[9, -2, 7]$ is distinct from $[-2, 7, 9]$.  It matters
+that the initial element is $9$ as opposed to $-2$.  
 
-The term``vector"
-is generally used in the context of mathematics.  In digital signal processing, we use the term ``sequence".  A 
-sequence is just like a vector.  For example, the sequence $x[n] = [1, 2, 3]$ is equivalent to the
-vector $v$ from before.  Just like vectors, we can take the inner product of two sequences.  For example, 
-the inner product of the sequences $x[n] = [1, 2, 3]$ and $y[n] = [1, -1, 0]$ also yields -1.  Are $x[n]$ and
-$y[n]$ orthogonal?  No, because their inner product is not zero.  For a time-domain 
-sequence, the numbers represent amplitudes.  So a sequence like $x[n] = [0.5, 0.2, 0]$ is a sound file with three
-samples of amplitudes 0.5, 0.2, and 0.
+Additionally, we like to give sequences names so that we can easily refer to them.  
+We could assign the sequence $[9, -2, 7]$ the name $x$ with an index variable $n$ such that 
+$x[n] = [9, -2, 7]$.  The index variable is used to refer to any element in the sequence.  For example,
+the notation $x[0]$ is equivalent to the zeroth element in the sequence, namely 9.  In digital signal processing
+and nearly all computer languages, we always number sequences starting with index zero.  It can
+be a confusing convention at first.  For example, $x[1]$ refers to $-2$ and not $9$.  In digital signal processing,
+sequences generally hold samples of audio (i.e., amplitudes).  So a sequence like $x[n] = [0.5, 0.2, 0]$ is a sound file with three samples of amplitude 0.5, 0.2, and 0.
 
-We can also take the inner product of two functions as well.  Figure \ref{fig:twoSines} shows two different 
-sinusoids.  The green sine wave can be expressed as .... and the blue sine wave can be expressed as ....  As with
-sequences, we take the inner product of two functions by summing their pointwise products.  
-
-Why do we care about orthogonality?  It turns out that orthogonality and sinusoids have an important 
-mathematical relationship.  If we take any two sinusoids and take their inner product, the result is zero
-(i.e., orthogonal) 
-\textbf{except when the two sinusoids have the same frequency}.  This simple property is the key to 
-understanding how the DFT works and for determing whether a particular signal contains some frequency.  
-Note that there are some caveats to this claim which we will discuss soon.
+Sequences are the inputs to the inner product.  \textbf{The inner product is calculated by multiplying
+the values at each index of the two sequences and then summing those products}.  As an example, let us
+take two sequences: $x[n] = [1, 2, 3]$ and $y[n] = [1, -1, 0]$.  The inner product of $x[n]$ and $y[n]$ is $(1 * 1) + (2 * -1) + (3 * 0) = -1$.
+We take the first numbers of each sequence and multiply them.  Then we multiply the second
+numbers and then the third numbers and add them all up.  In this example, that sum is -1.  The inner product 
+will always yield a single number.  If the result is zero, we say that the two sequences are
+orthogonal.  In this case, $x[n]$ and $y[n]$ are not orthogonal.  In math, we often use angle brackets to denote
+the inner product.  For example, the inner product of sequences $x$ and $y$ is notated as $\langle x, y \rangle$.
 
 \begin{figure}[h]
 	\caption{Two sinusoids that are periodic along the interval 0 to $L$.}
 	\centering
-	\includegraphics[scale = 0.8]{twoSinusoids.png}
+	\includegraphics[scale = 0.3]{twoSinusoids.jpg}
 	\label{fig:twoSines}
 \end{figure}
 
-Consider the two sinusoids in Figure 1, which will serve as a good example for illustrating orthogonality.  To 
-take the inner product of these two sinusoids over some interval from 0 to some farther point in time $L$, 
-one must sum the pointwise products of the amplitudes
-for every instant in time between 0 and $L$.  The first pointwise product would be at $t = 0$ where $t$ 
-represents time.  At that moment, the green sinusoid has an amplitude of about 0.25 and the blue sinusoid has
+We can also take the inner product of two functions as well.  The inner product for two functions is also defined
+as the sum of pointwise products.  Consider the two sinusoids shown in Figure \ref{fig:twoSines}.  The red 
+wave can be expressed as $0.5\cos(2\pi(2)t + 1)$, and the blue wave 
+can be expressed as $\sin(2\pi(3)t + \pi/2)$.  In this example, we will take the inner product over a specific 
+range of time from $t = 0$ to $t = 1$.  To begin, we start with
+the first points from the red and blue sinusoids at $t = 0$.
+At that moment, the red sinusoid has an amplitude of about 0.25 and the blue sinusoid has
 an amplitude of 1.0.  The product of these two values would be $1.0 * 0.25 = 0.25$.  That constitutes the first pointwise product.
-To calculate the sum of all the other pointwise products, we would need to do this same procedure for every value of $t$
-between 0 and $L$.  That's an infinite number of points!  Fortunately, 
+To calculate the sum of all the other pointwise products, we would need to do this same procedure for every value of $t$ between 0 and 1.  That's an infinite number of points!  Fortunately, 
 if we can express these sinusoids in the form $A\sin(2\pi ft + \phi)$, then
-it becomes relatively trivial with calculus and we can show that the result is indeed 0! 
+the calculation becomes relatively trivial with calculus.  The inner product for these two functions over this time 
+period is zero,
+and therefore the functions are orthogonal over that time period.
+
+It is important to note that we have not proven anything or ascribed any significance yet to the inner product
+or orthogonality.  We have simply defined an operation (i.e, the inner product) that can be performed on any two sequences or functions,
+nothing more.  Similarly, orthogonality is simply a label attached to the result of the inner product if it is zero.  
+So why do we care about orthogonality and the inner product?  It turns out that orthogonality and 
+sinusoids have an important 
+mathematical relationship.  If we take any two sinusoids and take their inner product, the result is zero
+(i.e., orthogonal) 
+\textbf{except when the two sinusoids have the same frequency}.  This simple property is the key to 
+understanding how the DFT works.  Note that there are some caveats to this claim that we will discuss soon.
 
 Any two sinusoids of different frequencies are orthogonal no matter their phase or amplitude.  A key caveat though
 is that the duration over which we take the inner product must usually be infinite in order to make this claim.  In 
 music though, we never deal with infinitely long sine waves.  Songs are made up of finite length sine waves.  We
-can still have orthogonality for any two sine waves over some finite interval from 0 to $L$, but we must provide
+can still have orthogonality for any two sine waves over some interval, but we must provide
 the extra condition that the waves are \textbf{periodic} along that interval.  This is a crucial point and one that 
 will be paramount for 
 understanding the limitations of the Discrete Fourier Transform.  If we look back at Figure \ref{fig:twoSines}, 
 we will see that 
-both the blue and the green sinusoids start and end at the same place in their respective curve.  If this were not true,
+both the blue and the red sinusoids start and end at the same place in their respective curve.  If this were not true,
 we could \textbf{not} make the claim that these two sine waves were orthogonal along that interval.  
 
-Two periodic sinusoids are also orthogonal even when we sample them.  This is important because we will
-never deal with periodic continuous sinusoids in a computer like those found in Figure \ref{fig:twoSines}.  We will be 
-dealing with sampled signals and sinusoids.  To illustrate and provide a little proof on concept, let's sample the
-two sinusoids from Figure \ref{fig:twoSines}.  For ease, let's assume that $L = 1$ so we will sample for one second
-from both the green and blue sinusoids.  If you look at Figure \ref{fig:twoSines}, we can see that the green sinusoid
+Two periodic sinusoids are also orthogonal even when we sample them.  To illustrate and provide a little proof of concept, let us sample the
+two sinusoids from Figure \ref{fig:twoSines}.  If you look at Figure \ref{fig:twoSines}, we can see that the red sinusoid
 completes two complete cycles over a period of 1 second.  Therefore, it has a frequency of 2Hz.  The blue sinusoid
-completes three full cycles so it has a frequency of 3Hz.  We need to choose a sampling rate that will not cause aliasing
-for these two signals.  Anything above 6Hz will suffice, so let's choose 8 Hz.  Figure \ref{fig:twoSinesPoints} shows 
-where those samples lie on our two sinusoids.  The samples for the blue sinusoid are approximately $b[n] = [1, -0.707, 0, 0.707, -1, 0.707, 0, -0.707]$ and the samples for the green
-sinusoid are $g[n] = [0.27, -0.421, -0.27, 0.421, 0.27, -0.421, -0.27, 0.421]$.  The inner
-product of $b[n]$ and $g[n]$ is equal to (1 * 0.27) + (-0.707 * -0.421) + (0 * -0.27) + 
-(0.707 * 0.421) + (-1 * 0.27) + (0.707 * -0.421) + (0 * -0.27) + (-0.707 * 0.421) = 0.
-Indeed these two sinusoids are orthogonal even when sampled.
+completes three full cycles so it has a frequency of 3Hz.  We should expect that when we take the inner product
+of these two sequences of samples that we get a result of zero because the frequencies are different.  
+To start, we need to choose a sampling rate that will prevent aliasing.  Anything above 6Hz will suffice, so let us choose 8 Hz.  Figure \ref{fig:twoSinesPoints} shows 
+where those samples lie on our two sinusoids.  The samples for the blue sinusoid are approximately $b[n] = [1, -0.707, 0, 0.707, -1, 0.707, 0, -0.707]$ and the samples for the red
+sinusoid are $r[n] = [0.27, -0.421, -0.27, 0.421, 0.27, -0.421, -0.27, 0.421]$.  The inner
+product of $b[n]$ and $r[n]$ is equal to (1 * 0.27) + (-0.707 * -0.421) + (0 * -0.27) + 
+(0.707 * 0.421) + (-1 * 0.27) + (0.707 * -0.421) + (0 * -0.27) + (-0.707 * 0.421) = 0.  Indeed these two sinusoids are orthogonal even when sampled which is expected because the two sinusoids have different frequencies.
 
 \begin{figure}[h]
-	\caption{Two sinusoids that are periodic along the interval 0 to $L$.}
+	\caption{Two sinusoids that are periodic along the interval 0 to $L = 1$.}
 	\centering
-	\includegraphics[scale = 0.8]{twoSinusoidsPoints.png}
+	\includegraphics[scale = 0.3]{twoSinusoidsPoints.jpg}
 	\label{fig:twoSinesPoints}
 \end{figure}
 
-Let's briefly summarize the conditions when two sinusoids of different frequencies
+As a side note, samples for a sinusoid can be generated by replacing time $t$ with $Tn$ where $T$ is
+the sampling period and $n$ is the sample number or index.  $T$ is related to the sampling rate $f_s$.
+$T$ specifies the amount of time between each sample and can be calculated as $1/f_s$.  The two
+sequences $b[n]$ and $r[n]$ were generated by sampling the sinusoids $\sin(6\pi t + \pi/2)$ and
+$0.5\cos(4\pi t + 1)$.  Therefore, $b[n] = \sin(6\pi Tn + \pi/2)$ and $r[n] = 0.5\cos(4\pi Tn + 1)$.
+
+Let us briefly summarize the conditions when two sinusoids of different frequencies
 are orthogonal:
 
 \begin{itemize}
@@ -98,73 +119,104 @@ are orthogonal:
 \end{itemize}
 
 If you are curious more about how we can prove orthogonality and some of the issues with orthogonality for
-continuous and discrete sinusoids, refer to Appendix A.
+continuous and discrete sinusoids, refer to Appendix A.  \textbf{Moving forward unless otherwise indicated, our 
+claims will always be based on these two assumptions even when not explicitly indicated.}
 
-\section*{Probing for Sinusoids}
+\subsection*{Probing for Sinusoids}
 
-Ideally we would like some tool to be able to test whether a particular frequency is part
-of some arbitrary signal.  We should be able to provide this tool some signal like a song
-or speech and some frequency and our tool should be able to report back to use that either,
-yes, this frequency is part of the signal or, no, the frequency is not part of the signal.
-Figure \ref{fig:test} graphically depicts this procedure.  	Given such a tool, we could then 
-iteratively test our signal for a whole range of frequencies
-to construct the frequency domain of our signal.  This is exactly the procedure that the 
-DFT performs.  It tests a signal for a whole range of frequencies to determine which are 
-part of the signal and which are not.
+As stated at the beginning of this section, the inner product will be our tool for
+detecting frequencies in an audio signal.  To this point, we have seen how the inner
+product of two sinusoids can determine the similarity of their frequencies.  If the result
+of the inner product is non-zero, we know the sinusoids must have the same frequency.
+If the result is zero, the sinusoids must have different frequencies.  But most audio
+signals are not a single sinusoid.  So how can the inner product detect the presence
+of sinusoids in a more complex audio signal?
 
-\begin{figure}[h]
-\caption{A sketch of the desired procedure for determining frequency in a signal.}
-\centering
-\includegraphics[scale = 0.4]{test.png}
-\label{fig:test}
-\end{figure}
-
-Orthogonality will be our testing tool.  Let's imagine that our sampled signal was a simple
-sinusoid of arbitrary frequency, phase, and amplitude.  Ahead of time, we do not know
-anything about the sinusoid other than it is periodic along some time interval $L$.  Let's 
-choose a frequency to test, say 100Hz, that we know is also periodic along $L$.  If we take
-the inner product between the samples of the unknown sinusoid and the samples of 100Hz,
-the result can provide some clues as to whether they are the same signal.  What do we know 
-if the result is non-zero?  We can definitively conclude that they are the same frequency because
-all periodic sinusoids of different frequencies are orthogonal.  What do we know if the result is 
-zero?  The easy conclusion is to say that they must be different frequencies.  But that would
-be a mistake!  We have not said anything yet about the inner product of two sinusoids of the
-\textbf{same} frequency.  As it turns out, the inner product will almost always be non-zero 
-unless the two sinusoids are out of phase by $\pi/2$.  So an inner product of zero almost
-always means that the two sinusoids are of different frequency but not definitively.
-
-	The inner product then is almost the perfect tool to help us distinguish between two
-periodic frequencies.  Unfortunately, the pesky phase issue of $\pi/2$ for two sinusoids of 
-the same frequency throws a wrench into the system.  In the next section, we will look at a way
-to correct this problem.  But for now, let's assume that the inner product can perfectly distinguish
-between the frequencies of two sinusoids.  
-
-	We have shown how orthogonality can work as our testing tool for Figure \ref{fig:test} when
-our signal is a sinusoid.  But rarely would our signal ever be just a simple sinusoid.  How can
-we apply the inner product to an arbitrary signal like a song?  Recall that
-any song, speech, soundscape, or any other kind of audio can be broken down into a sum of sinusoids.
+Recall that any song, speech, soundscape, or any other kind of audio can be broken down into a sum of 
+sinusoids as shown below.
 
 $$A_1\sin(2\pi f_1 t + \phi_1) + A_2\sin(2 \pi f_2 t + \phi_2) + A_3\sin(2 \pi f_3 t + \phi_3) + ...$$
 
-It turns out that the inner product is distributive.  So the inner product of some arbitrary signal applies
-to each sinusoidal element that composes the signal.  The term ``distributive" in mathematics applies
+\noindent Suppose that we want to know if some audio signal has a particular frequency.  Let us call that frequency
+$f_{test}$.  One strategy would be to separate the audio signal into its sinusoidal components and take the inner product of a sinusoid with frequency $f_{test}$ against each component.  
+Any non-zero result would indicate that $f_{test}$ was
+present in the audio signal.  Unfortunately, we cannot just dissect an audio signal and separate it into its
+individual components for testing.  So how can we test each component?
+
+Here, math comes to the rescue.  The inner product has a special property called the \textbf{distributive property}.
+The term ``distributive" in mathematics applies
 to many different operations.  For example, we know from alebgra that the distributive property of 
 multiplication over addition means that $x * (y + z) = x * y + x * z$.  We see that the multiplication operator can apply
-to each individual component and the result is just the same.  If we have an arbitrary signal $x$ and another
-arbitrary signal composed of components $y$ and $z$, then the distributive property for inner products 
-means that  $\langle x, y + z \rangle = \langle x, y \rangle + \langle x, z \rangle$.  We will not spend any
+to each individual component and the result is just the same.  The same is true for the inner product!\footnote{We will not spend any
 time proving this truth here.  But it is actually not too difficult to do so.  The inner product is simply a
 series of multiplications and additions.  So with some clever rearranging of terms, we can show that 
-the distributive property is true for inner products.  
+the distributive property is true for inner products.}
+If we have an arbitrary signal $x$ and another
+arbitrary signal composed of components $y$ and $z$, then the distributive property for inner products 
+means that  $\langle x, y + z \rangle = \langle x, y \rangle + \langle x, z \rangle$.  
 
-This is a wonderful result because we know now that when the inner product of some test frequency is 
+This is a wonderful result because we do not have to separate the frequency components of our audio
+signal before testing.  We know now that when the inner product of some test frequency is 
 applied to some arbitrary signal composed of sinusoids, the result is equivalent to the inner product of
 our test frequency with each sinusoidal component.  We just analyzed the meaning of the inner product
 of two sinusoids.  Anything that is non-zero means that two sinusoids are the same frequency.  Anything
-zero is \textbf{almost} always means the two sinusoids are of different frequency.  Therefore, a non-zero result
-of the inner product of some test frequency with an arbitrary signal means that the frequency is a part of that
-signal.  A result of zero means that the frequency is likely not a part of the signal.  So the inner product
+zero means the two sinusoids are of different frequency.  Therefore, a non-zero result
+indicates that the frequency is a part of that
+signal.  A result of zero means that the frequency is not a part of the signal.  So the inner product
 is our tool to implement Figure \ref{fig:test}.  
+
+To solidify this concept, let us take eight samples from some signal and test that signal for certain
+frequencies.  We will name the signal $x[n]$ and we will assume that the sampling rate is 8Hz.  Here
+are those samples:
+
+$$x[n] = [0.1728, 0.2574, -0.0445, -0.0432, -0.1728, -0.2574, 0.0445, 0.0432]$$
+
+\noindent Let us first test to see whether 2Hz is present in the signal.  To do so, let us generate samples
+from a 2Hz sinusoid.  Here are those samples below set to the variable $t$:
+
+$$t[n] = [0, 1, 0, -1, 0, 1, 0, -1]$$
+
+\noindent Let us now take the inner product of $x[n]$ with $t[n]$, notated as $\langle x, t \rangle$.
+
+$$\langle x, t \rangle = (0.1728 \cdot 0) + (0.2574 \cdot 1) + (-0.0445 \cdot 0) + ... = 0$$
+
+\noindent The result of the inner product of $x$ and $t$ is zero, meaning that $x$ and $t$ are orthogonal.  Therefore,
+the frequency 2Hz is not part of the audio signal $x$.  
+
+Let us test another frequency.  Let us generate samples for 3Hz to see if that frequency is present in $x$.  
+Below are samples from a 3Hz sine wave.
+
+$$u[n] = [0, 0.7071, -1, 0.7071, 0, -0.7071, 1, -0.7071]$$
+
+\noindent Again let us take the inner product of $x[n]$ with $u[n]$.  This time the result is 0.392.  A non-zero
+result indicates that 3Hz is present in $x$.  We could test $x$ against other frequencies to see if they exist.  
+The samples for $x$ were generated from the following function $0.2\sin(2\pi t + 1.3) + 0.1 * \sin(6\pi t -0.2)$.
+As you can see 3Hz is represented by $0.1 * \sin(6\pi t -0.2)$.  If we tested $x$ against a frequency of 1Hz, we
+would also get a non-zero result.
+
+As an important reminder, orthogonality of sinusoids is predicated on the fact that all sinsuoids are periodic
+along the same interval.  In this somewhat contrived example, I was careful to assemble a signal $x$ whose
+frequency components were periodic along one second of time.  This limited the creation of $x$ to only
+integer frequencies.  Similarly, I made sure to test $x$ only with integer frequencies as well.  Suppose I tested
+$x$ against the samples of a frequency like 1.5Hz.  We would get a non-zero inner product!  This would seem
+to indicate the presence of 1.5Hz in the signal but we know that $x$ was derived only from a sinusoid of 1Hz
+and 3Hz.  The issue is that 1.5Hz is \textbf{not} periodic across a time period of one second.  It is paramount
+to remember that all of the claims made so far are based upon the critical restriction that both the testing sinusoid
+and the components of our audio signal are all periodic along the same distance.  Later in this document,
+we will return to the issue of aperiodicity but for now our claims will be based on this assumption.
+
+\subsection*{The Pesky $\pi/2$ Problem}
+
+It seems as though we have solved the problem stated at the outset of this section.  We have discovered a tool
+that can detect the presence of a single frequency in any audio signal by taking the inner product of the signal
+and a sinusoid with some testing frequency.  And essentially we have, but there is one special caveat that
+we need to address.  \textbf{It is not true that only sinusoids of different frequencies are orthogonal.  Two sinusoids of the same frequency are also orthogonal when their phase differs by $\pi/2$.}  
+
+Why is this problematic?  The inner product was supposed to be our perfect tool that could definitively determine
+the presence of a sinusoid.  If the result was non-zero, the sinusoids have the same frequency.  If the result was
+zero, the sinsusoids have different frequencies.  The former is still true but the latter may not always be.  It is 
+possible that we could take the inner product of some audio signal against a testing sinusoid and get a result
+of zero even when the testing frequency is part of the audio signal.  
 
 \begin{figure}[h]
 	\caption{A realization of the desired procedure for determining frequency in a signal.}
@@ -173,39 +225,38 @@ is our tool to implement Figure \ref{fig:test}.
 	\label{fig:testImplemented}
 \end{figure}
 
-Figure \ref{fig:testImplemented} summarizes our methodology for implementing Figure \ref{fig:test}.  The inner
-product is a tool that can distinguish whether two sinusoids are the same frequency with near certainty.  The next
-section will show a way to make it foolproof.  Because the inner product is distributive, when it is applied to an
-arbitrary signal and some test sinusoid, the inner product of the test with each sinusoidal component of different
-frequency will be zero.  If any of the frequency components match our test frequency,  we will likely get a non-zero
-result indicating that the test frequency is present in our signal.  Again, our test mechanism depicted in 
-Figure \ref{fig:testImplemented} only works under the condition that the test frequency and the sampled signal
-are periodic along the same interval.  
-
-\section*{The Pesky $\pi/2$ Problem}
-
-We know that the inner product of two sinusoids at different frequencies is always zero, assuming that the
-sinusoids are periodic over some interval $L$.  However, that is not the $\textbf{only}$ way two sinusoids are
-orthogonal.  It turns out that the inner product of two sinusoids of the $\textbf{same}$ frequency is zero when 
-the sinusoids are separated by a phase of $\pi/2$.  This is a problem if we want to use the inner product to
-test the similarity of two frequencies.  We do not want the inner product to be zero when the frequencies are the
-same.  That should be reserved for different frequencies. 
+\noindent Figure \ref{fig:testImplemented} shows an updated version of the behavior of the inner product and what it means.
+We can see that a result of zero, likely means that the testing frequency is not part of the audio signal but not
+definitively.
 
 How can we ensure that we get a non-zero inner product for sinusoids of the same frequency?  The answer:
 take \textbf{two} inner products.  Suppose we have some test frequency and some signal and we would like to 
 know whether that test frequency is a part of the signal just as described in Figure \ref{fig:test}.  If we take
 the inner product between the test frequency and the signal, we run the risk that the answer could be zero even
 if the test frequency is a part of the signal.  But if we have two test sinusoids of the same frequency but with
-different phases, then at least one of them will yield a non-zero inner product with the signal if the signal 
-contains the frequency of the test sinusoid.  
+different phases, then at least one of them will yield a non-zero inner product when the audio signal has
+that frequency.  
 
-It may not be readibly apparent why using two sinusoids makes any difference.  For simplicity, let us say the
-two sinusoids are sine and cosine.  Sine and cosine are separated by a phase difference of $\pi/2$.  Can you
-think of another sinusoid of the same frequency with a phase different of $\pi/2$ for \textbf{both} of them?
-The answer is no.  A sinusoid that $\pi/2$ away from cosine is either a sine wave or $\pi$ radians away from
-sine.  In either case, that sinusoid would have a non-zero inner product with sine.  Therefore, using two inner
-products, one with sine and one with cosine, creates a wonderful system where a zero inner product from both
-cosine and sine means the frequency is conclusively not a part of the signal.
+It may not be readibly apparent why using two sinusoids makes any difference.  For simplicity, let us say that
+we will test our audio signal using a sine wave and a cosine wave, both of frequency $f_{test}$.  Sine and cosine 
+differ in phase by $\pi/2$.  Let us assume that our audio signal also has a component
+of frequency $f_{test}$ but we know nothing about that component's phase.  In the original scenario, we would
+just take the inner product of our audio signal against a sine wave with frequency $f_{test}$.  Most likely, the
+result would be non-zero, successfully indicating the presence of $f_{test}$ in the audio signal.  However,
+if the component in the audio signal differs in phase from a sine wave by exactly $\pi/2$, our result would be
+zero.  Again, we wish that were not the case.  Let us assume that the result is zero.  A difference in $\pi/2$ from 
+a sine wave is either a cosine wave or a negative cosine wave (i.e., $-\cos$).  If we  take the inner product again, 
+now with a cosine wave, the result will be non-zero because a cosine wave is not $\pi/2$ out of phase with a 
+cosine wave or a negative cosine wave.  
+
+In essence, there does not exist any phase that is both $\pi/2$ out of phase with
+both a cosine wave and a sine wave.  Therefore, taking two inner
+products, one with sine and one with cosine,  ensures that at least one of the results will be non-zero in the
+event the frequency is part of the audio signal.  Figure \ref{fig:testComplete} shows our completed implementation 
+of the testing mechanism outlined from
+Figure \ref{fig:test}.  Note how we now need two sampled sinusoids: one cosine and one sine.  While this
+requires extra processing, we can now definitively conclude the presence of a particularly frequency in an 
+audio signal.
 
 \begin{figure}[h]
 	\caption{Complete solution for testing frequency components of a signal.}
@@ -214,45 +265,44 @@ cosine and sine means the frequency is conclusively not a part of the signal.
 	\label{fig:testComplete}
 \end{figure}
 
-Figure \ref{fig:testComplete} shows our completed implementation of the testing mechanism outlined from
-Figure \ref{fig:test}.  Note how we now need two sampled sinusoids: one cosine and one sine.  But now see
-how an inner product of zero for both the sine test and cosine test definitively concludes that the frequency
-is not a part of the signal.
+The DFT also takes two inner products to determine the presence of a particular frequency.  However, it uses
+a cosine wave and a \textbf{negative} sine wave.  The same principles still apply.  There does not exist any
+phase that is both $\pi/2$ out of phase with both a cosine and a negative sine wave.  So we will still be able 
+to determine the presence of any frequency with certainty.
 
 If you are curious about how we can prove that $\pi/2$ is an issue, see Appendix B which walks through the math.
 
-\section*{Imaginary Numbers}
+\subsection*{Imaginary Numbers}
 
-Figure \ref{fig:testComplete} shows how we need to take the inner product of our signal with both a cosine and
-sine wave to test whether a frequency is present in some signal.  Therefore, we will have two results, one for
-each inner product.  It's a little cumbersome in math to express two separate results from some operation.  
-Generally, if we compute something like $\sin(\pi/2)$, it yields a single numerical result.  
-
-One way to do this would be to use vectors.  As we discussed above, vectors store a sequence of data and we
-could put the result from the first inner product in the first slot of the vector and the second inner product in 
-the second slot.  This would work perfectly well.  But there actually is a better solution: complex numbers.
+Figure \ref{fig:testComplete} shows that we will generate two results, one for
+each inner product.  In digital signal processing, it is common to hold two separate values in a complex number.  
 Perhaps you have encountered complex numbers somewhere in your mathematical training.  Complex numbers
 come in the form $a + bi$ where $i$ is called the imaginary unit or number and is defined as $i^2 = -1$.  Already,
 this feels perilous on some level.  Why are we using complex numbers for audio signals?  There is nothing
 ``imaginary" about an audio signal, sine wave, or cosine wave.  So why use them?
 
-In general, complex numbers are important mathematical tools for solving problems in mathematics, engineering and
-the physical sciences.  This includes signals.  In fact, complex numbers are just as ``real" as say negative numbers.
-It's hard to find a physical analogy to negative numbers.  We cannot pick up -4 rocks, for example.  Yet, we 
+In general, complex numbers are important  tools for solving problems in mathematics, engineering and
+the physical sciences.  This includes signal processing.  In fact, complex numbers are just as 
+``real" as say negative numbers.
+It is hard to find a physical analogy to negative numbers.  We cannot pick up $-4$ rocks, for example.  Yet, we 
 accept negative numbers because they allow us to work more easily with operators like subtraction.  Complex
 numbers are similar.  They are a mathematical tool that allows us to solve problems we would not otherwise be
-able to solve.  For our purposes, they serve a similar role to vectors.  When we have a number like $a + bi$, we
-separate the real component $a$ from the imaginary component $b$.  You cannot add $a$ and $b$.  They are treated
-as separate and distinct units.  We could very well use a complex number to express the number of apples and 
-oranges.  Perhaps the real component represents the number of apples and the imaginary component represents
-the number of oranges.  Then, to express that I have 3 apples and 4 oranges, I could write that as a single number
-$3 + 4i$.  So one way to view a complex number is simply as a single number that has two distinct parts.  This
-is what we need.  We can use the real component to hold the result of one inner product and the complex 
-component to hold the other.
+able to solve.   
 
-Complex numbers have one final important property that make them the ideal choice for our problem.  The great 
+When we have a number like $a + bi$, we
+separate the real component $a$ from the imaginary component $b$.  The plus sign can be confusing because we cannot actually add $a$ and $b$.  They are treated
+as separate and distinct units. It is akin to how coefficients of distinct variables such as $3y + 4z$ cannot be added. 
+
+Because a complex number contains two distinct quantities, the real and imaginary components can be used
+to store the results of each inner product.  We can use the real and imaginary components to represent any
+two distinct quantities.  For example, we can use complex numbers to represent apples and oranges.  
+Perhaps the real component represents the number of apples and the imaginary component represents
+the number of oranges.  Then, to express that 3 apples and 4 oranges, we can write a single number
+$3 + 4i$.  Complex numbers are a convenient device to represent any two values.
+
+Complex numbers have another property that makes them the appropriate choice.  The great 
 mathematician, Leonhard Euler, discovered one of the fundamental mathematical equations
-that relates numbers such as $i$, $e$ and $\sin$ and $\cos$.  It is called Euler's formula:
+that relates numbers such as $i$, $e$ as well as $\sin$ and $\cos$.  It is called Euler's formula:
 
 \begin{equation}
 \label{eq:euler}
@@ -261,24 +311,16 @@ e^{ix} = \cos(x) + i\sin(x)
 
 This is one of the most remarkable equations in all of mathematics.  The key takeaway is that we can use
 a complex exponential to express both a real cosine term and an imaginary sine term.  Again there is
-nothing ``imaginary" about the sine wave.  The complex exponential can simply be expressed as two 
+nothing ``imaginary" about the sine wave.  The complex exponential can simply express two 
 \textbf{separate} sinusoids.  Fortuitously, a complex exponential is just what we need for our current
 problem.  Remember we want to take the inner product of a signal with a cosine and sine wave, and we want to 
 keep the results separate.  All we need to do then is to take the inner product of our signal with a complex
 exponential.  For example, if we have a signal $x[n]$ and
-we want to test it for frequency $f_{test}$, we can compute $\langle x[n], e^{2\pi f_{test}i}\rangle$.  This
+we want to test it for frequency $f_{test}$, we can compute $\langle x[n], e^{2\pi f_{test}Tni}\rangle$.  This
 notation says to take the inner product with the real cosine term of frequency $f_{test}$ and the inner
 product with imaginary sine term of frequency $f_{test}$.  Because the real and imaginary numbers are kept
 separate, we will get an answer of the form $a + bi$ where $a$ is the result of the inner product with cosine
 and $b$ is the result of the inner product with sine. 
-
-For digital signal processing, we will sometimes see Euler's formula express with a different variable $\omega$ which
-stands for angular frequency.  Angular frequency is related to frequency by the equation $\omega = 2\pi f$.  So
-we can rewrite Equation \ref{eq:euler} as $e^{i\omega} = \cos(\omega) + i\sin(\omega)$ or 
-$e^{2\pi fi} = \cos(2 \pi f) + i\sin(2\pi f)$.  This better expresses the relationship between the frequency of the
-sinusoids and the complex exponential.
-
-Figure \ref{fig:testComplex} shows the updated version of our procedure for calculating the inner product.
 
 \begin{figure}[h]
 	\caption{Complete solution using complex exponentials.}
@@ -287,16 +329,15 @@ Figure \ref{fig:testComplex} shows the updated version of our procedure for calc
 	\label{fig:testComplex}
 \end{figure}
 
+Figure \ref{fig:testComplex} shows the updated version of our procedure for calculating the inner product.
 It is important to understand that Figure \ref{fig:testComplex} is no different from Figure \ref{fig:testComplete}.  
 The inner product in Figure \ref{fig:testComplex} produces two inner products stored in the real and imaginary
 components, respectively.  Those are the same inner products calculated in Figure \ref{fig:testComplete}.  If
 both the real and imaginary component are zero then we know the test frequency is not a part of our signal
 $x[n]$.
-
+face
 Unrelated to the issue of inner products, Euler's
 formula also allows us to translate back and forth between sinusoids like sine and cosine and exponentials.
 Exponentials are much easier to work with and allows us to quickly prove equations like trigonometric identities
 that would be much harder if we simply had to work with just sine and cosine.  In general, if you plan to learn
 more about digital signal processing, you will need to get comfortable with complex exponentials.
-
-\textbf{**NEED TO MENTION ABOUT NEGATIVE AND SAY -SIN**}
