@@ -5,3 +5,5 @@ the Discrete Fourier Transform.  Signal processing is a challenging field for ne
 especially for musicians and composers, yet offers a wealth of possibilities for
 audio exploration.  The following guide attempts to explain the important principles
 of the DFT in the context of audio.
+
+The guide can be viewed as a pdf.  The file name is dftGuide.pdf.
