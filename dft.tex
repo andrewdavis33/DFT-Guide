@@ -2,8 +2,19 @@
 
 \subsection*{The DFT Equation}
 
-We now have all the necessary knowledge to understand how the Discrete Fourier Transform works.  Here is the
-equation for it below:
+We now have all the necessary knowledge to understand how the Discrete Fourier Transform works.  In fact, we
+have essentially walked through most of it during our discussion of orthogonality and the inner product.  Before
+I present the equation, remember that the DFT takes a finite number of samples and produces a finite frequency
+spectrum.  The DFT makes an important assumption about those samples: \textbf{the samples contain an integer number 
+of periods from some periodic signal}.  If the signal is periodic, then we know it can be represented as a sum of
+harmonic sinusoids.  Therefore, we only need to test our signal for the harmonics instead of the entire frequency
+spectrum.  This is tremendously important because we need to generate a finite frequency spectrum.  Furthermore,
+assuming we have filtered out any frequency components above the Nyquist frequency, we only need to test harmonics
+up to the Nyquist frequency.  The fundamental frequency of the harmonics is simply the duration represented
+by the samples.  
+
+
+Here is the equation for the DFT below:
 
 \begin{equation}
 \label{eq:dft}
@@ -37,7 +48,8 @@ Remember orthogonality for finite sinusoids only holds for periodic sinusoids.  
 completes an integer number of cycles across some period. 
 In the DFT, that period is the number of samples of our audio signal $x[n]$ denoted by $N$. 
 The variable $k$ denotes
-the number of complete cycles that our testing sinusoid completes.  If we know the sample rate $f_s$, we
+the number of complete cycles that our testing sinusoid completes and specifies a harmonic
+to test against $x[n]$.  If we know the sample rate $f_s$, we
 can determine the frequency of the sinusoid we are testing using $k$ and $N$.  The sample rate is a ratio of
 the number of samples taken per second.  If we divide the sample rate by $N$, we can calculate how many 
 periods of $N$ it takes to span one second of time.  For example if $f_s = 1000$Hz and $N = 250$, then
@@ -122,7 +134,7 @@ and the right summation is the imaginary part.
 \end{align*}
 
 Half of the result trivially goes away because many of those samples are multiplied by zero.  The bracket notation
-$x[1]$, for example, simply means to use the 1st sample from $x[n]$.  Note that we count starting from index zero
+$x[1]$, for example, simply means to use the first sample from $x[n]$.  Note that we count starting from index zero
 in this notation so $x[1] = -0.1432$ and not $-0.3649$.  Using the same procedure, we can calculate
 the imaginary summation as well.  That result is $-0.8415i$.  Therefore, the value of 
 $X_2$ is $0.5404 - 0.8415i$.  Note that $X_2$ is non-zero!  Therefore we can see that the frequency 2Hz is
@@ -132,30 +144,30 @@ If we want to test whether 3Hz is a part of $x[n]$, then we can calculate the DF
 3Hz which also happens to be 3.  Using the same procedure, we would find that $X_3 = 0 + 0i$.  $X_3$ is
 zero, meaning that 3Hz is not part of $x[n]$ as expected.  Of course, we will almost always be using the
 DFT on unknown signals for $x[n]$.  But as this small example illustrates, the DFT can let us test to see 
-whether a periodic sinusoid is part of our signal.
+whether a periodic sinusoid is part of our periodic signal.
 
 \subsection*{Reconstructing Amplitude and Phase}
 
 While the DFT can tell us whether a certain frequency is part of some signal, it can do even better.  The complex
-number $X_k$ can be used to reconstruct the amplitude and phase of the sinusoid as well.  Let us assume that
-the signal $x[n]$ has a sinusoid of the form $A\cos(2\pi f Tn + \phi)$  that is periodic along the interval
+number $X_k$ can be used to reconstruct the amplitude and phase of the frequency as well.  Let us assume that
+$x[n] = A\cos(2\pi f Tn + \phi)$ and that $x[n]$ is periodic along the interval
  $N$.\footnote{We could very well assumed a sinusoid of the form $A\sin(2\pi fTN + \phi)$ instead of using a 
 cosine.  It certainly makes no mathematical difference as a sine wave and cosine wave are only differentiated
 by their phase.  It will be nicer mathematically if we think about it as a cosine wave.  The corresponding
 $X_k$ would have a complex number of the form $	X_k = \frac{AN\sin(\phi)}{2} - \frac{AN\cos(\phi)}{2}i$. While this is perfectly valid, the careful reader will note that the angle or argument of the complex number
 does not match $\phi$ as it does in the cosine form.  The cosine form presents a nice convenience.}  
-We can also write the sinusoid in the form $A\cos(2 \pi \frac{k}{N} n + \phi)$ using Equation \ref{eq:freq}.  The
+Therefore, we can also write the sinusoid in the form $A\cos(2 \pi \frac{k}{N} n + \phi)$ using Equation \ref{eq:freq}.  The
 latter form matches nicely with $X_k$ because the subscript $k$ from $X_k$ is the same $k$ in 
 $A\cos(2 \pi \frac{k}{N} n + \phi)$.  When we take the DFT for $x[n]$,  the complex number will be of the form
-shown in Equation \ref{eq:complexNumber} if the sinusoid exists in $x[n]$.  Recall it will be zero otherwise.
+shown in Equation \ref{eq:complexNumber}.
 
 \begin{equation}
 	\label{eq:complexNumber}
 	X_k = \frac{AN\cos(\phi)}{2} + \frac{AN\sin(\phi)}{2}i
 \end{equation}
 
- In some notations for complex numbers, the real part and imaginary parts of a complex number is 
- given with the symbols: $\RE()$ and $\IM()$, respectively.  If the imaginary number $z = 3 + 4i$, then
+ In some notations for complex numbers, the real part and imaginary parts of a complex number are referred to
+ using the following operators: $\RE()$ and $\IM()$, respectively.  If the imaginary number $z = 3 + 4i$, then
  $\RE(z) = 3$ and $\IM(z) = 4$.  The symbols themselve may seem cumbersome but they are
  simply a convenience for referring to the components of an imaginary number.  Therefore, we can say
  based on Equation \ref{eq:complexNumber} that $\RE(X_k) = \frac{AN\cos(\phi)}{2}$ and $\IM(X_k) = 
@@ -193,16 +205,17 @@ like Matlab and others offer a special function that accounts for the sign of th
 hand if your calculator wraps the phase between $-\frac{\pi}{2}$ and $\frac{\pi}{2}$.
 
 Equations \ref{eq:complexNumber}, \ref{eq:amplitude}, and \ref{eq:phase} apply to nearly all $X_k$. 
-The exceptions is when $k/N$
+The exceptions are when $k/N$
 is a multiple of $\frac{1}{2}$, corresponding to $k = N/2$ (i.e., the Nyquist frequency) and $k = 0$ 
-(sometimes termed the DC offset in electronics).  In these 
-instances, the complex number $X_k$ cannot be used to recover the original amplitude and phase.  In such instances,
-$X_k = AN\cos{(\phi)} + 0i$.  Because the imaginary component is zero, we do not know
-what proportion of $A$ and $\phi$ contribute to the real component of $X_k$.  
-This is usually not an issue.  We do not expect to have
+(sometimes termed the DC offset in electronics).\footnote{DC offset refers to how far away the average of a signal
+deviates from zero.  It is not a component of the signal that contributes to pitch.}  In these 
+instances, the complex number $X_k$ cannot be used to recover the original amplitude and phase because
+$X_k = AN\cos{(\phi)} + 0i$.  Since the imaginary component is zero, we do not know
+what proportion of $A$ and $\phi$ contribute to the real component of $X_k$.  For the DC offset, this is not an issue.
+A sinusoid with $k = 0$ is simply of the form $A\cos(\phi)$ and evaluates to a scalar.  It does not matter
+what proportion of amplitude and phase contribute to the scalar, simply the value of the scalar itself.  The
+Nyquist frequency  similarly does not pose a problem.  We do not expect to have
 any frequency component at the Nyquist frequency if we have properly filtered our signal to prevent aliasing.
-The DC offset is also rather inconsequential.  DC offset refers to how far away the average of a signal
-deviates from zero.  It is not a component of the signal that contributes to pitch.  
 
 \subsection*{Frequency Bins}
 

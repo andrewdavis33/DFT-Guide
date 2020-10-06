@@ -1,6 +1,6 @@
 \section*{Beyond the DFT}
 
-We have seen how the DFT is a way to transform an audio signal into the frequency domain.  We have also
+We have seen how the DFT can transform an audio signal into the frequency domain.  We have also
 seen that it is not a perfect tool.  The DFT assumes two things:
 
 \begin{enumerate}
@@ -13,13 +13,14 @@ that we do not produce aliasing in the frequency representation.  But generally 
 
 Unfortunately, when these two main conditions are not obeyed, the DFT cannot accurately parse the frequency
 components of $x[n]$.  Nearly all $x[n]$ in practice violate these two conditions.  Nevertheless we can look at
-peaks in the magnitude response to get a good estimate of where the original frequencies lie.  In general, the
-magnitude response contains the most important information we need. 
+peaks in the magnitude spectrum to get a good estimate of where the original frequencies lie.  In general, the
+magnitude spectrum contains the most important information we need. 
 
 \subsection*{Short-Time Fourier Transform}
 
-As we saw in the section on Time Resolution vs Frequency Resolution, too many samples starts to blur 
-different time components of the sound.  Generally we want to get a snapshot of each moment in a song.
+As we saw in the section on Time Resolution vs Frequency Resolution, too large of $N$ can blur 
+different time components of the sound.  Generally we want to get a snapshot of the frequency domain at
+any given moment.
 The Short-Time Fourier Transform takes successive DFTs on a longer stretch of audio to get a sense of
 how the frequency components of sound change over time.  In audio platforms like Max/MSP or SuperCollider
 or underneath the hood in Digital Audio Workstations like Logic or ProTools, the Short-Time Fourier Transform
@@ -31,7 +32,7 @@ plot the results of the STFT as a spectrogram.  Figure \ref{fig:spectrogram} sho
 The x-axis represents the time and the y-axis represents frequency.  Each vertical bar in the spectrogram 
 represents one DFT of one segment of $N$ samples from the audio file.  The spectrogram plots the magnitude
 response.  Higher magnitudes are distinguished from lower magnitudes using a color map.  In this 
-spectrogram, magnitude is charted on a decibel scale where higher magnitudes are brighter and lower magnitudes
+spectrogram, the magnitude is charted on a decibel scale where higher magnitudes are brighter and lower magnitudes
 are darker.  The spectrogram provides a nice visualization for how the frequency content of a sound evolves over
 time.  
 
@@ -55,9 +56,10 @@ content for these guitar chords.
 \subsection*{More DSP}
 
 Understanding the tools of digital signal processing like the Discrete Fourier Transform is imperative for
-audio programming and developing industry tools in audio.  For musicians, we care mostly about the
-tools that are created and how to use them.  The actual implementation and mathematical framework 
-necessary to understand DSP theory is left to the engineers and mathematicians.  Nevertheless, having a 
+audio programming and developing industry tools in audio.  For musicians, we care mostly about how to use
+digital audio tools.  The actual 
+implementation and mathematical framework 
+necessary to understand DSP theory is left to programmers, audio technicians, and signal processing engineers.  Nevertheless, having a 
 solid foundation in digital signal processing, and in particular the techniques to convert between
 the time and frequency domains, will invariably make us better musicians and quicker to capitalize
 on digital audio tools.  Hopefully, this guide has demystified the DFT to some degree and given you
